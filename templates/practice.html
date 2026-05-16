@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ problem.language }} Practice | Syntax Debugger</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <nav class="app-nav" aria-label="Practice navigation">
+      <a class="brand-link" href="{{ url_for('index') }}">Syntax Debugger</a>
+      <div class="nav-links">
+        {% for language in languages %}
+          {% if language.available %}
+            <a
+              class="{% if language.slug == selected_language %}active{% endif %}"
+              href="{{ url_for('practice', language=language.slug) }}"
+            >
+              {{ language.name }}
+            </a>
+          {% else %}
+            <span>{{ language.name }}</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </nav>
+
+    <main class="app-shell">
+      <section class="workspace" aria-labelledby="problem-title">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">{{ problem.language }} challenge</p>
+            <h1 id="problem-title">{{ problem.title }}</h1>
+          </div>
+          <form action="{{ url_for('next_problem') }}" method="post">
+            <button class="icon-button" type="submit" title="Load another random problem" aria-label="Load another random problem">
+              ↻
+            </button>
+          </form>
+        </div>
+
+        <p class="prompt">{{ problem.prompt }}</p>
+
+        <div class="code-grid">
+          <section class="code-panel" aria-labelledby="bugged-code">
+            <div class="panel-heading">
+              <h2 id="bugged-code">Bugged code</h2>
+            </div>
+            <pre><code>{{ problem.bugged_code }}</code></pre>
+          </section>
+
+          <form class="code-panel editor" action="{{ url_for('check_answer') }}" method="post">
+            <div class="panel-heading">
+              <h2>Your fix</h2>
+              <button type="submit">Check fix</button>
+            </div>
+            <textarea name="answer" spellcheck="false" aria-label="Your fixed code">{{ last_answer }}</textarea>
+          </form>
+        </div>
+      </section>
+
+      <aside class="side-panel" aria-label="Hints and explanation">
+        <div class="stat-row">
+          <span>{{ total_problems }} premade bugs</span>
+          <span>Hint {{ hint_level }}/3</span>
+        </div>
+
+        {% if feedback %}
+          <p class="feedback {% if solved %}success{% endif %}">{{ feedback }}</p>
+        {% endif %}
+
+        <section>
+          <div class="hint-header">
+            <h2>Hints</h2>
+            <form action="{{ url_for('reveal_hint') }}" method="post">
+              <button type="submit" {% if hint_level >= 3 or solved %}disabled{% endif %}>
+                Reveal hint
+              </button>
+            </form>
+          </div>
+
+          <ol class="hints">
+            {% for hint in hints %}
+              <li>{{ hint }}</li>
+            {% else %}
+              <li class="muted">Start with the error surface: punctuation, pairs, and boundaries.</li>
+            {% endfor %}
+          </ol>
+        </section>
+
+        {% if solved %}
+          <section class="explanation">
+            <h2>Why it broke</h2>
+            <p>{{ problem.explanation }}</p>
+            <h3>One working fix</h3>
+            <pre><code>{{ problem.fixed_code }}</code></pre>
+          </section>
+        {% else %}
+          <section class="explanation locked">
+            <h2>Why it broke</h2>
+            <p>Solve the bug to unlock the explanation.</p>
+          </section>
+        {% endif %}
+      </aside>
+    </main>
+  </body>
+</html>

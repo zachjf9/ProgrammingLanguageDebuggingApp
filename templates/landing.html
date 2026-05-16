@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Syntax Debugger</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body class="landing-page">
+    <main class="landing-shell">
+      <section class="landing-intro" aria-labelledby="landing-title">
+        <p class="eyebrow">Debug to learn syntax</p>
+        <h1 id="landing-title">Practice programming by fixing broken code.</h1>
+        <p>
+          Choose a language, inspect a premade bug, reveal hints one step at a time,
+          and unlock the explanation after you solve it.
+        </p>
+      </section>
+
+      <section class="language-picker" aria-labelledby="language-title">
+        <div class="section-heading">
+          <p class="eyebrow">Choose your practice language</p>
+          <h2 id="language-title">Available languages</h2>
+        </div>
+
+        <div class="language-grid">
+          {% for language in languages %}
+            {% if language.available %}
+              <a class="language-card available" href="{{ url_for('practice', language=language.slug) }}">
+                <span>{{ language.name }}</span>
+                <strong>Start practice</strong>
+              </a>
+            {% else %}
+              <div class="language-card unavailable" aria-disabled="true">
+                <span>{{ language.name }}</span>
+                <strong>Coming soon</strong>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
