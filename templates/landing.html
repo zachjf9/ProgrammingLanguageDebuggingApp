@@ -26,9 +26,9 @@
         <div class="language-grid">
           {% for language in languages %}
             {% if language.available %}
-              <a class="language-card available" href="{{ url_for('practice', language=language.slug) }}">
+              <a class="language-card available" href="{{ url_for('problem_selector', language=language.slug) }}">
                 <span>{{ language.name }}</span>
-                <strong>Start practice</strong>
+                <strong>Choose problems</strong>
               </a>
             {% else %}
               <div class="language-card unavailable" aria-disabled="true">

@@ -1,0 +1,20 @@
+<nav class="app-nav" aria-label="Practice navigation">
+  <a class="brand-link" href="{{ url_for('index') }}">Syntax Debugger</a>
+  <div class="nav-actions">
+    <a class="selector-link" href="{{ url_for('problem_selector', language=selected_language) }}">Problems</a>
+    <div class="nav-links">
+      {% for language in languages %}
+        {% if language.available %}
+          <a
+            class="{% if language.slug == selected_language %}active{% endif %}"
+            href="{{ url_for('problem_selector', language=language.slug) }}"
+          >
+            {{ language.name }}
+          </a>
+        {% else %}
+          <span>{{ language.name }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</nav>

@@ -3,7 +3,7 @@ import re
 
 from flask import Flask, redirect, render_template, request, session, url_for
 
-from problems import PROBLEMS
+from problems import PYTHON_PROBLEMS
 
 
 app = Flask(__name__)
@@ -12,10 +12,10 @@ app.secret_key = "dev-debugging-app-secret"
 LANGUAGES = [
     {"name": "Python", "slug": "python", "available": True},
     {"name": "JavaScript", "slug": "javascript", "available": False},
+    {"name": "HTML", "slug": "html", "available": False},
+    {"name": "CSS", "slug": "css", "available": False},
     {"name": "Java", "slug": "java", "available": False},
-    {"name": "C++", "slug": "cpp", "available": False},
-    {"name": "Ruby", "slug": "ruby", "available": False},
-    {"name": "Go", "slug": "go", "available": False},
+    {"name": "SQL", "slug": "sql", "available": False},
 ]
 
 
@@ -28,15 +28,12 @@ def normalize_code(code):
 def problems_for_language(language):
     return [
         problem
-        for problem in PROBLEMS
+        for problem in PYTHON_PROBLEMS
         if problem["language"].lower() == language.lower()
     ]
 
 
-def current_problem(language):
-    problem_id = session.get("problem_id")
-    if problem_id is None:
-        return None
+def problem_by_id(language, problem_id):
     return next(
         (
             problem
@@ -45,6 +42,23 @@ def current_problem(language):
         ),
         None,
     )
+
+
+def current_problem(language):
+    problem_id = session.get("problem_id")
+    if problem_id is None:
+        return None
+    return problem_by_id(language, problem_id)
+
+
+def start_problem(language, problem):
+    session["problem_id"] = problem["id"]
+    session["selected_language"] = language
+    session["hint_level"] = 0
+    session["solved"] = False
+    session.pop("last_answer", None)
+    session.pop("feedback", None)
+    return problem
 
 
 def choose_problem(language):
@@ -56,14 +70,7 @@ def choose_problem(language):
     choices = [
         problem for problem in language_problems if problem["id"] != previous_id
     ]
-    problem = random.choice(choices or language_problems)
-    session["problem_id"] = problem["id"]
-    session["selected_language"] = language
-    session["hint_level"] = 0
-    session["solved"] = False
-    session.pop("last_answer", None)
-    session.pop("feedback", None)
-    return problem
+    return start_problem(language, random.choice(choices or language_problems))
 
 
 @app.route("/")
@@ -72,11 +79,40 @@ def index():
 
 
 @app.route("/practice/<language>")
-def practice(language):
-    if not problems_for_language(language):
+def problem_selector(language):
+    language_problems = problems_for_language(language)
+    if not language_problems:
         return redirect(url_for("index"))
 
     session["selected_language"] = language
+    return render_template(
+        "problem_selector.html",
+        languages=LANGUAGES,
+        problems=language_problems,
+        selected_language=language,
+    )
+
+
+@app.route("/practice/<language>/random")
+def random_problem(language):
+    if not problems_for_language(language):
+        return redirect(url_for("index"))
+
+    choose_problem(language)
+    return redirect(url_for("practice_problem", language=language, problem_id=session["problem_id"]))
+
+
+@app.route("/practice/<language>/<problem_id>")
+def practice_problem(language, problem_id):
+    selected_problem = problem_by_id(language, problem_id)
+    if selected_problem is None:
+        return redirect(url_for("problem_selector", language=language))
+
+    if session.get("problem_id") != selected_problem["id"]:
+        start_problem(language, selected_problem)
+    else:
+        session["selected_language"] = language
+
     problem = current_problem(language) or choose_problem(language)
     hint_level = session.get("hint_level", 0)
     hints = [
@@ -115,21 +151,37 @@ def check_answer():
     else:
         session["feedback"] = "Not quite yet. Run the code in your head and try one smaller change."
 
-    return redirect(url_for("practice", language=language))
+    return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
 
 
 @app.post("/hint")
 def reveal_hint():
     language = session.get("selected_language", "python")
+    problem = current_problem(language) or choose_problem(language)
     session["hint_level"] = min(session.get("hint_level", 0) + 1, 3)
-    return redirect(url_for("practice", language=language))
+    return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
+
+
+@app.post("/solve")
+def solve_problem():
+    language = session.get("selected_language", "python")
+    problem = current_problem(language) or choose_problem(language)
+
+    if session.get("hint_level", 0) < 3:
+        session["feedback"] = "Reveal all three hints before using the solved example."
+    else:
+        session["last_answer"] = problem["fixed_code"]
+        session["solved"] = True
+        session["feedback"] = "Solved for you. Study the fix, then read why it works."
+
+    return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
 
 
 @app.post("/next")
 def next_problem():
     language = session.get("selected_language", "python")
-    choose_problem(language)
-    return redirect(url_for("practice", language=language))
+    problem = choose_problem(language)
+    return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
 
 
 if __name__ == "__main__":

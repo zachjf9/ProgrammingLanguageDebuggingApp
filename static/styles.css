@@ -45,6 +45,17 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.secondary-button {
+  background: #ffffff;
+  border: 1px solid var(--accent);
+  color: var(--accent-strong);
+  width: 100%;
+}
+
+.secondary-button:hover {
+  background: #e5f4f2;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -165,6 +176,20 @@ a {
   justify-content: flex-end;
 }
 
+.nav-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.selector-link {
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
 .nav-links a,
 .nav-links span {
   border: 1px solid var(--line);
@@ -184,6 +209,89 @@ a {
 
 .nav-links span {
   background: #f4f6f8;
+}
+
+.selector-shell {
+  display: grid;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 32px 18px;
+}
+
+.selector-header {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+}
+
+.selector-header h1 {
+  max-width: 720px;
+}
+
+.selector-header p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 1.06rem;
+  line-height: 1.55;
+  margin: 16px 0 22px;
+  max-width: 620px;
+}
+
+.primary-link {
+  align-items: center;
+  background: var(--accent);
+  border-radius: 6px;
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 800;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.primary-link:hover {
+  background: var(--accent-strong);
+}
+
+.problem-list {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.problem-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  min-height: 190px;
+  padding: 18px;
+}
+
+.problem-card:hover {
+  border-color: var(--accent);
+}
+
+.problem-card strong {
+  font-size: 1.25rem;
+}
+
+.problem-card p {
+  color: #334252;
+  line-height: 1.48;
+  margin-bottom: 0;
+}
+
+.problem-card small,
+.problem-number {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.problem-card small {
+  align-self: end;
 }
 
 .app-shell {
@@ -387,6 +495,10 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .problem-list {
+    grid-template-columns: 1fr;
+  }
+
   .side-panel {
     position: static;
   }
@@ -413,6 +525,18 @@ textarea {
 
   .nav-links {
     justify-content: flex-start;
+  }
+
+  .nav-actions {
+    justify-content: flex-start;
+  }
+
+  .selector-shell {
+    padding: 12px;
+  }
+
+  .selector-header {
+    padding: 20px;
   }
 
   .app-shell {

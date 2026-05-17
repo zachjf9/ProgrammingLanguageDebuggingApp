@@ -7,23 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
-    <nav class="app-nav" aria-label="Practice navigation">
-      <a class="brand-link" href="{{ url_for('index') }}">Syntax Debugger</a>
-      <div class="nav-links">
-        {% for language in languages %}
-          {% if language.available %}
-            <a
-              class="{% if language.slug == selected_language %}active{% endif %}"
-              href="{{ url_for('practice', language=language.slug) }}"
-            >
-              {{ language.name }}
-            </a>
-          {% else %}
-            <span>{{ language.name }}</span>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </nav>
+    {% include "_nav.html" %}
 
     <main class="app-shell">
       <section class="workspace" aria-labelledby="problem-title">
@@ -86,6 +70,12 @@
               <li class="muted">Start with the error surface: punctuation, pairs, and boundaries.</li>
             {% endfor %}
           </ol>
+
+          {% if hint_level >= 3 and not solved %}
+            <form action="{{ url_for('solve_problem') }}" method="post">
+              <button class="secondary-button" type="submit">Solve it for me</button>
+            </form>
+          {% endif %}
         </section>
 
         {% if solved %}

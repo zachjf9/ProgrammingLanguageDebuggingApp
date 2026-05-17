@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Choose a {{ selected_language|title }} Problem | Syntax Debugger</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    {% include "_nav.html" %}
+
+    <main class="selector-shell">
+      <section class="selector-header" aria-labelledby="selector-title">
+        <p class="eyebrow">{{ selected_language|title }} practice</p>
+        <h1 id="selector-title">Choose a debugging problem.</h1>
+        <p>Pick a specific bug to practice, or jump into a random challenge.</p>
+        <a class="primary-link" href="{{ url_for('random_problem', language=selected_language) }}">Random problem</a>
+      </section>
+
+      <section class="problem-list" aria-label="Problem choices">
+        {% for problem in problems %}
+          <a class="problem-card" href="{{ url_for('practice_problem', language=selected_language, problem_id=problem.id) }}">
+            <span class="problem-number">Problem {{ loop.index }}</span>
+            <strong>{{ problem.title }}</strong>
+            <p>{{ problem.prompt }}</p>
+            <small>{{ problem.bug_type }}</small>
+          </a>
+        {% endfor %}
+      </section>
+    </main>
+  </body>
+</html>
