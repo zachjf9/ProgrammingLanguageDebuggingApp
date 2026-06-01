@@ -3,7 +3,14 @@ import re
 
 from flask import Flask, redirect, render_template, request, session, url_for
 
-from problems import PYTHON_PROBLEMS
+from problems import (
+    CSS_PROBLEMS,
+    HTML_PROBLEMS,
+    JAVA_PROBLEMS,
+    JAVASCRIPT_PROBLEMS,
+    PYTHON_PROBLEMS,
+    SQL_PROBLEMS,
+)
 
 
 app = Flask(__name__)
@@ -11,12 +18,21 @@ app.secret_key = "dev-debugging-app-secret"
 
 LANGUAGES = [
     {"name": "Python", "slug": "python", "available": True},
-    {"name": "JavaScript", "slug": "javascript", "available": False},
-    {"name": "HTML", "slug": "html", "available": False},
-    {"name": "CSS", "slug": "css", "available": False},
-    {"name": "Java", "slug": "java", "available": False},
-    {"name": "SQL", "slug": "sql", "available": False},
+    {"name": "JavaScript", "slug": "javascript", "available": True},
+    {"name": "HTML", "slug": "html", "available": True},
+    {"name": "CSS", "slug": "css", "available": True},
+    {"name": "Java", "slug": "java", "available": True},
+    {"name": "SQL", "slug": "sql", "available": True},
 ]
+
+PROBLEM_BANKS = {
+    "python": PYTHON_PROBLEMS,
+    "javascript": JAVASCRIPT_PROBLEMS,
+    "html": HTML_PROBLEMS,
+    "css": CSS_PROBLEMS,
+    "java": JAVA_PROBLEMS,
+    "sql": SQL_PROBLEMS,
+}
 
 
 def normalize_code(code):
@@ -26,11 +42,7 @@ def normalize_code(code):
 
 
 def problems_for_language(language):
-    return [
-        problem
-        for problem in PYTHON_PROBLEMS
-        if problem["language"].lower() == language.lower()
-    ]
+    return PROBLEM_BANKS.get(language.lower(), [])
 
 
 def problem_by_id(language, problem_id):
