@@ -12,7 +12,6 @@ from problems import (
     SQL_PROBLEMS,
 )
 
-
 app = Flask(__name__)
 app.secret_key = "dev-debugging-app-secret"
 
@@ -34,7 +33,6 @@ PROBLEM_BANKS = {
     "sql": SQL_PROBLEMS,
 }
 
-
 def normalize_code(code):
     trimmed_lines = [line.rstrip() for line in code.strip().splitlines()]
     collapsed_blank_lines = re.sub(r"\n{3,}", "\n\n", "\n".join(trimmed_lines))
@@ -43,7 +41,6 @@ def normalize_code(code):
 
 def problems_for_language(language):
     return PROBLEM_BANKS.get(language.lower(), [])
-
 
 def problem_by_id(language, problem_id):
     return next(
@@ -55,13 +52,11 @@ def problem_by_id(language, problem_id):
         None,
     )
 
-
 def current_problem(language):
     problem_id = session.get("problem_id")
     if problem_id is None:
         return None
     return problem_by_id(language, problem_id)
-
 
 def start_problem(language, problem):
     session["problem_id"] = problem["id"]
@@ -71,7 +66,6 @@ def start_problem(language, problem):
     session.pop("last_answer", None)
     session.pop("feedback", None)
     return problem
-
 
 def choose_problem(language):
     language_problems = problems_for_language(language)
@@ -84,11 +78,9 @@ def choose_problem(language):
     ]
     return start_problem(language, random.choice(choices or language_problems))
 
-
 @app.route("/")
 def index():
     return render_template("landing.html", languages=LANGUAGES)
-
 
 @app.route("/practice/<language>")
 def problem_selector(language):
@@ -104,7 +96,6 @@ def problem_selector(language):
         selected_language=language,
     )
 
-
 @app.route("/practice/<language>/random")
 def random_problem(language):
     if not problems_for_language(language):
@@ -112,7 +103,6 @@ def random_problem(language):
 
     choose_problem(language)
     return redirect(url_for("practice_problem", language=language, problem_id=session["problem_id"]))
-
 
 @app.route("/practice/<language>/<problem_id>")
 def practice_problem(language, problem_id):
@@ -146,7 +136,6 @@ def practice_problem(language, problem_id):
         total_problems=len(problems_for_language(language)),
     )
 
-
 @app.post("/check")
 def check_answer():
     language = session.get("selected_language", "python")
@@ -165,14 +154,12 @@ def check_answer():
 
     return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
 
-
 @app.post("/hint")
 def reveal_hint():
     language = session.get("selected_language", "python")
     problem = current_problem(language) or choose_problem(language)
     session["hint_level"] = min(session.get("hint_level", 0) + 1, 3)
     return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
-
 
 @app.post("/solve")
 def solve_problem():
@@ -187,7 +174,6 @@ def solve_problem():
         session["feedback"] = "Solved for you. Study the fix, then read why it works."
 
     return redirect(url_for("practice_problem", language=language, problem_id=problem["id"]))
-
 
 @app.post("/next")
 def next_problem():
